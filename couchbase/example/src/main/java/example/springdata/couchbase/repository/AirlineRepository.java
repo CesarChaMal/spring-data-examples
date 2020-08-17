@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,16 @@ import example.springdata.couchbase.model.Airline;
 
 import java.util.List;
 
-import org.springframework.data.couchbase.core.query.N1qlPrimaryIndexed;
-import org.springframework.data.couchbase.core.query.View;
-import org.springframework.data.couchbase.core.query.ViewIndexed;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * Repository interface to manage {@link Airline} instances.
  *
  * @author Chandana Kithalagama
  * @author Mark Paluch
+ * @author Denis Rosa
  */
-@N1qlPrimaryIndexed
-@ViewIndexed(designDoc = "airlines")
 public interface AirlineRepository extends CrudRepository<Airline, String> {
 
 	/**
@@ -40,13 +37,12 @@ public interface AirlineRepository extends CrudRepository<Airline, String> {
 	 * @param code
 	 * @return
 	 */
-	Airline findAirlineByIataCode(String code);
+	List<Airline> findByIata(String code);
 
 	/**
 	 * Query method using {@code airlines/all} view.
 	 *
 	 * @return
 	 */
-	@View(designDocument = "airlines", viewName = "all")
 	List<Airline> findAllBy();
 }

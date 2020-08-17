@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,15 @@ package example.springdata.couchbase.model;
 
 import lombok.Data;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.couchbase.core.mapping.Document;
-
-import com.couchbase.client.java.repository.annotation.Field;
-import com.couchbase.client.java.repository.annotation.Id;
 
 /**
  * A domain object representing an Airline
  *
  * @author Chandana Kithalagama
  * @author Mark Paluch
+ * @author Denis Rosa
  */
 @Data
 @Document
@@ -34,15 +33,15 @@ public class Airline {
 
 	@Id private String id;
 
-	@Field private String type;
+	private String type;
 
-	@Field private String name;
+	private String name;
 
-	@Field("iata") private String iataCode;
+	private String iata;
 
-	@Field private String icao;
+	private String icao;
 
-	@Field private String callsign;
+	private String callsign;
 
-	@Field private String country;
+	private String country;
 }

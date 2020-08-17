@@ -1,17 +1,23 @@
 language: java
 
-matrix:
+os: linux
+
+jobs:
   include:
     - jdk: openjdk8
       env: JDK='OpenJDK 8'
-    - env: JDK='OpenJDK 11'
-      before_install: wget https://github.com/sormuras/bach/raw/master/install-jdk.sh && . ./install-jdk.sh -f 11
+    - jdk: openjdk11
+      env: JDK='OpenJDK 11'
     - env: JDK='OpenJDK 12'
       before_install: wget https://github.com/sormuras/bach/raw/master/install-jdk.sh && . ./install-jdk.sh -f 12
     - env: JDK='OpenJDK 13'
       before_install: wget https://github.com/sormuras/bach/raw/master/install-jdk.sh && . ./install-jdk.sh -f 13
+    - env: JDK='OpenJDK 14'
+      before_install: wget https://github.com/sormuras/bach/raw/master/install-jdk.sh && . ./install-jdk.sh -f 14
     - env: JDK='OpenJDK EA'
       before_install: wget https://github.com/sormuras/bach/raw/master/install-jdk.sh && . ./install-jdk.sh
+  allow_failures:
+    - env: JDK='OpenJDK EA'
 
 addons:
   apt:
@@ -22,8 +28,7 @@ addons:
       - couchbase-server-community
 
 services:
-  - couchbase-server
-  - redis-server
+  - redis
   - docker
 
 cache:
@@ -41,6 +46,7 @@ install:
   - /opt/couchbase/bin/couchbase-cli user-manage -c 127.0.0.1:8091 -u Administrator -p password --set  --rbac-username=travel-sample --rbac-password=password --roles=admin --auth-domain local
 
 script:
+  - cp -f settings.xml $HOME/.m2/settings.xml
   - mvn -version
   - java -version
-  - mvn clean dependency:list test -U -Dsort -Dmaven.test.redirectTestOutputToFile=true -B -s settings.xml
+  - mvn clean test -U -Dsort -Dmaven.test.redirectTestOutputToFile=true -B -s settings.xml

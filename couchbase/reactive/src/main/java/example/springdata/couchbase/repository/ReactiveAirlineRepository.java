@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,27 +19,24 @@ import example.springdata.couchbase.model.Airline;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import org.springframework.data.couchbase.core.query.N1qlPrimaryIndexed;
 import org.springframework.data.couchbase.core.query.View;
-import org.springframework.data.couchbase.core.query.ViewIndexed;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 
 /**
  * Repository interface to manage {@link Airline} instances.
  *
  * @author Mark Paluch
+ * @author Denis Rosa
  */
-@N1qlPrimaryIndexed
-@ViewIndexed(designDoc = "airlines")
 public interface ReactiveAirlineRepository extends ReactiveCrudRepository<Airline, String> {
 
 	/**
-	 * Derived query selecting by {@code iataCode}.
+	 * Derived query selecting by {@code iata}.
 	 *
 	 * @param code
 	 * @return
 	 */
-	Mono<Airline> findAirlineByIataCode(String code);
+	Mono<Airline> findByIata(String code);
 
 	/**
 	 * Query method using {@code airlines/all} view.

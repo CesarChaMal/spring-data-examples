@@ -49,11 +49,8 @@ public class ReactiveAirlineRepositoryIntegrationTests {
 
 	@Before
 	public void before() {
-
-		Airline toDelete = couchbaseOperations.findById("LH", Airline.class);
-
-		if (toDelete != null) {
-			couchbaseOperations.remove(toDelete);
+		if (couchbaseOperations.existsById().one("LH")) {
+			couchbaseOperations.removeById().one("LH");
 		}
 	}
 
@@ -63,10 +60,11 @@ public class ReactiveAirlineRepositoryIntegrationTests {
 	@Test
 	public void shouldFindAirlineN1ql() {
 
-		StepVerifier.create(airlineRepository.findAirlineByIataCode("TQ")).assertNext(it -> {
-
-			assertThat(it.getCallsign()).isEqualTo("TXW");
-		}).verifyComplete();
+		airlineRepository.findByIata("TQ") //
+				.as(StepVerifier::create) //
+				.assertNext(it -> {
+					assertThat(it.getCallsign()).isEqualTo("TXW");
+				}).verifyComplete();
 	}
 
 	/**
@@ -77,24 +75,29 @@ public class ReactiveAirlineRepositoryIntegrationTests {
 	@Test
 	public void shouldFindById() {
 
-		Mono<Airline> airline = airlineRepository.findAirlineByIataCode("TQ") //
+		Mono<Airline> airline = airlineRepository.findByIata("TQ") //
 				.map(Airline::getId) //
 				.flatMap(airlineRepository::findById);
 
-		StepVerifier.create(airline).assertNext(it -> {
+		airline.as(StepVerifier::create) //
+				.assertNext(it -> {
 
-			assertThat(it.getCallsign()).isEqualTo("TXW");
-		}).verifyComplete();
+					assertThat(it.getCallsign()).isEqualTo("TXW");
+				}).verifyComplete();
 
-		StepVerifier.create(airlineRepository.findById("unknown")).verifyComplete();
 	}
 
 	/**
 	 * Find all {@link Airline}s applying the {@code airlines/all} view.
 	 */
 	@Test
-	public void shouldFindByView() {
-		StepVerifier.create(airlineRepository.findAllBy()).expectNextCount(187).verifyComplete();
+	public void shouldFindAll() {
+		airlineRepository.findAllBy().count() //
+				.as(StepVerifier::create) //
+				.assertNext(count -> {
+
+					assertThat(count).isGreaterThan(100);
+				}).verifyComplete();
 	}
 
 	/**
@@ -107,7 +110,7 @@ public class ReactiveAirlineRepositoryIntegrationTests {
 		Airline airline = new Airline();
 
 		airline.setId("LH");
-		airline.setIataCode("LH");
+		airline.setIata("LH");
 		airline.setIcao("DLH");
 		airline.setCallsign("Lufthansa");
 		airline.setName("Lufthansa");
@@ -117,6 +120,8 @@ public class ReactiveAirlineRepositoryIntegrationTests {
 				.map(Airline::getId) //
 				.flatMap(airlineRepository::findById);
 
-		StepVerifier.create(airlineMono).expectNext(airline).verifyComplete();
+		airlineMono.as(StepVerifier::create) //
+				.expectNext(airline) //
+				.verifyComplete();
 	}
 }

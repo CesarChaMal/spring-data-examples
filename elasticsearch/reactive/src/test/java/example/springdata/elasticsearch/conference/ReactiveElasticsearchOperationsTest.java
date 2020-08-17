@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      https://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,19 +26,21 @@ import java.text.SimpleDateFormat;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.query.Criteria;
 import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Test case to show Spring Data Elasticsearch functionality.
  *
  * @author Christoph Strobl
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest(classes = ApplicationConfiguration.class)
 public class ReactiveElasticsearchOperationsTest {
 
@@ -56,7 +58,7 @@ public class ReactiveElasticsearchOperationsTest {
 		CriteriaQuery query = new CriteriaQuery(
 				new Criteria("keywords").contains(expectedWord).and("date").greaterThanEqual(expectedDate));
 
-		operations.find(query, Conference.class) //
+		operations.search(query, Conference.class) //
 				.as(StepVerifier::create) //
 				.consumeNextWith(it -> verify(it, expectedWord, expectedDate)) //
 				.consumeNextWith(it -> verify(it, expectedWord, expectedDate)) //
@@ -64,11 +66,11 @@ public class ReactiveElasticsearchOperationsTest {
 				.verifyComplete();
 	}
 
-	void verify(Conference it, String expectedWord, String expectedDate) {
+	void verify(SearchHit<Conference> hit, String expectedWord, String expectedDate) {
 
-		assertThat(it.getKeywords()).contains(expectedWord);
+		assertThat(hit.getContent().getKeywords()).contains(expectedWord);
 		try {
-			assertThat(format.parse(it.getDate())).isAfter(format.parse(expectedDate));
+			assertThat(format.parse(hit.getContent().getDate())).isAfter(format.parse(expectedDate));
 		} catch (ParseException e) {
 			fail("o_O", e);
 		}
